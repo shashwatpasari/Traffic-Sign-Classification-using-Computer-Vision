@@ -1,7 +1,5 @@
 # Traffic-Sign-Classification-using-Computer-Vision
 
-# Traffic Sign Classification (COMP9444 Project)
-
 ## 📝 Problem Statement
 The goal of this project is to **classify German traffic signs** into their correct categories using machine learning models.  
 Traffic sign recognition is a critical component of **autonomous driving systems** and advanced driver-assistance systems (ADAS), where real-time classification must be robust against lighting variations, rotations, occlusions, and class imbalance.
