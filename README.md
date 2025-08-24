@@ -83,6 +83,4 @@ Three architectures were implemented and compared:
   - Fully fine-tune ResNet-50 with more training epochs  
   - Explore more advanced architectures like EfficientNet or Vision Transformers  
 
-- ReplaceWithDatasetProviders
-- ReplaceWithAnyColleagues
 
