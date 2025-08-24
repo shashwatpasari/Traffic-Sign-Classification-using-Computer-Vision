@@ -1,243 +1,90 @@
 # Traffic-Sign-Classification-using-Computer-Vision
 
-# COMP9444 Project
+# Traffic Sign Classification (COMP9444 Project)
 
-A comprehensive, reproducible README for the attached codebase: `COMP9444_notebook.py`.
-
-> **Note:** Replace all `ReplaceWith...` placeholders with your actual information and add your own screenshots/plots where indicated.
-
----
-
-## ✨ Overview
-
-ReplaceWithOneParagraphSummary: Briefly describe what this project does (e.g., a neural network model for <task>, dataset used, and key results). 
-
-- **Language:** Python 3.10+ (recommended)
-- **Core stack:** Pillow, collections, datetime, itertools, json, math, matplotlib, numpy, os, pandas, random, scikit-learn, time, torch, torchvision  
-- **Entry point:** `COMP9444_notebook.py`
-
-![Project Teaser](assets/ReplaceWithTeaserFilename.png "Short caption for teaser image")
+## 📝 Problem Statement
+The goal of this project is to **classify German traffic signs** into their correct categories using machine learning models.  
+Traffic sign recognition is a critical component of **autonomous driving systems** and advanced driver-assistance systems (ADAS), where real-time classification must be robust against lighting variations, rotations, occlusions, and class imbalance.
 
 ---
 
-## 📂 Repository Structure
+## 📊 Data Source
+- **Dataset:** [German Traffic Sign Recognition Benchmark (GTSRB)](https://benchmark.ini.rub.de/gtsrb_news.html)  
+- **Access:** Available directly via `torchvision.datasets.GTSRB`  
+- **Content:** 43 different traffic sign classes with thousands of labeled images  
+- **Structure:** Training, validation, and test splits with a stratified distribution  
 
-```
-.
-├── COMP9444_notebook.py
-├── assets/                          # Images/plots/screenshots for the README
-│   ├── ReplaceWithTeaserFilename.png
-│   ├── ReplaceWithTrainingCurve.png
-│   └── ReplaceWithConfusionMatrix.png
-├── data/                            # (Optional) place datasets here or point to your paths
-└── README.md
-```
-
-> Create an `assets/` folder beside your code and drop the images with the placeholder names above.
+Example samples from the dataset:  
+![Dataset Samples](assets/dataset_samples.png "Examples of traffic sign images from GTSRB")
 
 ---
 
-## ⚙️ Requirements
-
-Create a virtual environment and install dependencies:
-
-```bash
-# 1) Create and activate a virtual environment (Unix/macOS)
-python3 -m venv .venv
-source .venv/bin/activate
-
-# On Windows (PowerShell)
-# python -m venv .venv
-# .venv\Scripts\Activate.ps1
-
-# 2) Upgrade pip
-python -m pip install --upgrade pip
-
-# 3) Install packages
-pip install Pillow collections datetime itertools json math matplotlib numpy os pandas random scikit-learn time torch torchvision
-```
-
-If you used Jupyter/Colab originally, also install:
-```bash
-pip install jupyter ipykernel
-python -m ipykernel install --user --name=comp9444_project --display-name "COMP9444 Project"
-```
-
-> **Tip:** If you ran this on Google Colab and want to export exact requirements:
-> ```python
-> !pip freeze | tee requirements.txt
-> ```
-> Then locally: `pip install -r requirements.txt`.
+## 🔄 Preprocessing
+To prepare and balance the dataset for training:  
+- **Image Processing:**  
+  - Resize to `64×64` pixels  
+  - Convert to tensors (`ToTensor`)  
+  - Normalize pixel values  
+- **Data Augmentation:**  
+  - Random rotations (`RandomRotation`)  
+  - Affine transformations (`RandomAffine`)  
+  - Color jitter (`ColorJitter`)  
+- **Class Imbalance Handling:**  
+  - Stratified splits and **balanced sampling** ensured minority classes were not underrepresented.  
 
 ---
 
-## 🗂️ Data
+## 🏗️ Models Used
+Three architectures were implemented and compared:  
 
-Describe how to obtain or place your dataset(s):
+1. **Custom MLP Classifier**  
+   - Fully connected layers (flattened input)  
+   - Dropout and BatchNorm1d for regularization  
+   - Serves as a baseline  
 
-- **Source:** ReplaceWithDatasetSource (URL or citation).  
-- **Expected layout:**
+2. **Custom CNN Classifier**  
+   - Multiple convolutional layers with ReLU, BatchNorm2d, and MaxPooling  
+   - Stronger regularization and capacity to capture spatial features  
+   - Designed specifically for 64×64 traffic sign images  
 
-```
-data/
-├── train/
-├── val/
-└── test/
-```
-
-Update any hard‑coded paths inside `COMP9444_notebook.py` if needed.
-
----
-
-## 🚀 How to Run
-
-### 1) Quick Start
-
-```bash
-python COMP9444_notebook.py --help
-```
-
-Common examples (edit flags to match your script):
-
-```bash
-# Train
-python COMP9444_notebook.py --mode train --epochs 50 --batch-size 32 --lr 1e-3 --device cuda
-
-# Evaluate
-python COMP9444_notebook.py --mode eval --checkpoint checkpoints/best.ckpt --device cuda
-
-# Inference on a folder
-python COMP9444_notebook.py --mode infer --input_dir data/test_images --output_dir outputs/
-```
-
-> If your script is structured differently, update the flags accordingly. Below is a summary of functions/classes discovered to help you decide the right entry points.
-
-- **Detected functions:** make_loader, train_loop, unnormalize, plot_training_curves, plot_confusion, show_one_image_per_class_with_counts, show_misclassified_images, test_loop  
-- **Detected classes:** AugmentedGTSRB, Custom_CNNClassifier, Custom_MLPClassifier, ResNet50Classifier  
-
-### 2) Reproducibility
-
-```bash
-# (Optional) Set seeds for reproducibility in your code
-PYTHONHASHSEED=0
-```
-
-If using PyTorch, ensure you set `torch.manual_seed`, `torch.cuda.manual_seed_all`, and deterministic flags as needed.
+3. **ResNet-50 (Transfer Learning)**  
+   - Pretrained on ImageNet via `torchvision.models.resnet50`  
+   - Final layer replaced for 43 GTSRB classes  
+   - Partial fine-tuning (only last block unfrozen)  
 
 ---
 
-## 📊 Results
+## ✅ Results
 
-Insert your final metrics and a short narrative comparison.
+| Metric              | CNN    | MLP    | ResNet-50 |
+|----------------------|:------:|:------:|:---------:|
+| Accuracy             | **98.84** | 65.84 | 96.97 |
+| Precision (Macro)    | **98.32** | 64.90 | 95.14 |
+| Recall (Macro)       | **97.99** | 65.22 | 96.71 |
+| F1 (Macro)           | **97.98** | 63.50 | 95.79 |
+| Precision (Micro)    | **98.84** | 65.84 | 96.97 |
+| Recall (Micro)       | **98.84** | 65.84 | 96.97 |
+| F1 (Micro)           | **98.84** | 65.84 | 96.97 |
 
-| Metric         | Value | Notes |
-|----------------|:-----:|------:|
-| Accuracy       | Replace | e.g., test set accuracy |
-| Precision/Recall/F1 | Replace | macro/micro if applicable |
-| IoU / mIoU     | Replace | for segmentation tasks |
-| AUC            | Replace | for ROC analysis |
-
-Add supporting visuals:
-
-![Training Curve](assets/ReplaceWithTrainingCurve.png "Loss/accuracy over epochs")
-
-![Confusion Matrix](assets/ReplaceWithConfusionMatrix.png "Model confusions by class")
-
-> You can also include qualitative examples (predictions vs. ground truth) as a gallery.
-
----
-
-## 🧪 Evaluation & Experiments
-
-- **Train/Val/Test split:** ReplaceWithSplitDetails (e.g., 70/15/15)
-- **Hyperparameters:** epochs=Replace, batch_size=Replace, lr=Replace, optimizer=Replace, scheduler=Replace
-- **Augmentations/Preprocessing:** ReplaceWithDetails (e.g., normalization, resizing, Albumentations transforms)
-- **Ablations:** ReplaceWithNotes (e.g., model variants you tried)
+### 📌 Discussion
+- **Best Model:** The **custom CNN** achieved the highest accuracy (98.84%), slightly outperforming ResNet-50 (96.97%).  
+- **MLP Baseline:** The MLP lagged far behind (65.84%) since it flattened images and ignored spatial patterns.  
+- **Macro vs. Micro:** Near-equal macro and micro scores for CNN/ResNet-50 indicate **balanced performance across all classes**, thanks to stratified splits, augmentation, and balanced sampling.  
+- **CNN vs. ResNet-50:** Despite transfer learning, the CNN slightly outperformed ResNet-50, likely due to:  
+  1. Partial fine-tuning of ResNet-50  
+  2. Domain gap between ImageNet and GTSRB  
+  3. CNN being compact and tailored to 64×64 inputs with stronger regularization  
 
 ---
 
-## 🏗️ Code Structure & Key Components
+## 🚀 Conclusion
+- **Custom CNN** proved to be the most effective, achieving nearly **99% accuracy**, surpassing ResNet-50.  
+- Balanced sampling and targeted augmentation were key in mitigating class imbalance.  
+- The MLP baseline was useful for comparison but inadequate for fine-grained visual recognition tasks.  
+- Future work:  
+  - Fully fine-tune ResNet-50 with more training epochs  
+  - Explore more advanced architectures like EfficientNet or Vision Transformers  
 
-Briefly document the main parts of your script:
-
-- **Data loading:** ReplaceWithDataLoaderInfo
-- **Model architecture:** ReplaceWithModelSummary (e.g., MLP/CNN/ResNet/Transformer)
-- **Training loop:** ReplaceWithTrainingDetails (loss functions, metrics, logging)
-- **Evaluation:** ReplaceWithEvalDetails
-- **Saving/Loading:** ReplaceWithCheckpointPaths
-
-If using PyTorch, consider pasting a `torchsummary`/`print(model)` block into this README (or include as an image).
-
----
-
-## 🔧 Configuration
-
-If your script reads CLI flags or a YAML/JSON config, document them here. Example:
-
-```bash
-python COMP9444_notebook.py   --epochs 50   --batch-size 32   --lr 1e-3   --optimizer adam   --seed 42
-```
-
----
-
-## 📦 Exporting & Inference
-
-- **Saving models:** ReplaceWithSavePath (e.g., `checkpoints/best.ckpt`)
-- **Loading for inference:** show a minimal code snippet
-
-```python
-# Example (PyTorch)
-import torch
-from pathlib import Path
-# from your_module import Net  # if applicable
-
-ckpt = torch.load("checkpoints/best.ckpt", map_location="cpu")
-# model = Net(...); model.load_state_dict(ckpt["state_dict"])
-# model.eval()
-# pred = model(x)
-```
-
----
-
-## 🛠️ Development Notes
-
-- Python formatting: `black`, imports: `isort`, lint: `ruff`  
-- Pre-commit hooks recommended for cleanliness
-
-```bash
-pip install black isort ruff pre-commit
-pre-commit install
-```
-
----
-
-## 🧰 Troubleshooting
-
-- **CUDA out of memory:** lower batch size, use gradient accumulation, or switch to CPU.
-- **Package mismatch:** recreate a clean venv; ensure `pip freeze` matches your machine.
-- **Dataset path errors:** verify `data/` layout and update absolute/relative paths in the script.
-
----
-
-## 📜 Citation
-
-If this project is part of **UNSW COMP9444**, you can add an academic citation or coursework acknowledgement here. Otherwise, cite related papers or datasets you used.
-
-```text
-ReplaceWithAnyCitationYouNeed
-```
-
----
-
-## 🔒 License
-
-Choose a license and include a `LICENSE` file. For open source, consider MIT, Apache-2.0, or BSD-3-Clause.
-
----
-
-## 🙌 Acknowledgements
-
-- ReplaceWithMentorsOrLibraries
 - ReplaceWithDatasetProviders
 - ReplaceWithAnyColleagues
 
