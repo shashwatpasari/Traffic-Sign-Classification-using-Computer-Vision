@@ -13,7 +13,7 @@ Traffic sign recognition is a critical component of **autonomous driving systems
 - **Structure:** Training, validation, and test splits with a stratified distribution  
 
 Example samples from the dataset:  
-![Dataset Samples](assets/dataset_samples.png "Examples of traffic sign images from GTSRB")
+![Dataset Samples](assets/data_samples.png "Examples of traffic sign images from GTSRB")
 
 ---
 
